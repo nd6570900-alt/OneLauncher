@@ -1,0 +1,466 @@
+# Fork validation and release handoff
+
+## Local 2.10.2 integration (2026-11-13)
+
+The owner requested the stable 2.10.2 update with commits held locally, plus a
+pink supported-platform badge. Starting fork commit: `b6b1456d`. Upstream tag
+`oneclient-2.10.2` resolves to `43815efac80072c255528d558f6325534327e4ec`.
+Its ten commits were merged without conflicts, with upstream ancestry retained.
+No push, release workflow dispatch or publication is authorized for this update.
+The README retains verified published 2.10.1 packages and checksum links.
+
+The merge exactly retained all 52 upstream-changed files that were not already
+fork-modified. Reviewed the remaining intersections in account settings, wardrobe,
+launch actions, chat, translations and settings registration. Account storage,
+private paths, shared-library choices, game-launch/skin-agent gates, distribution,
+workflow files, updater identity and application artwork are unchanged.
+Cargo.lock aligns the 15 workspace package versions and adds only upstream's
+pinned `inventory` 0.3.25; no other external package versions changed.
+
+Checks run with Rust 1.98.0, Python 3 and Java 25 on Linux:
+
+- The debug launcher build passed: `target/debug/oneforall_app`, version 2.10.2.
+  It was not opened and no live launcher settings or game library were changed.
+- The first Rust library-test run exposed the translation scanner's outdated
+  direct-call-only assumption after upstream introduced registered search keys.
+  The same scanner assumption exists in the upstream tag. A six-line test-only
+  fix includes registered search titles/descriptions as uses, preserving missing
+  and unused key checks. It fixes the failing audit without removing translations.
+- After that adjustment, all **1,206 workspace library tests** passed. The same
+  **14 rendering tests** in the markdown-image and lobby-panel suites were
+  explicitly excluded. The new search-registration and wardrobe-grid tests pass.
+- All **16 offline-account integration tests** and **8 shared-library/archive
+  integration tests** passed. These cover old account/provider data, private
+  settings, temporary shared instances/Java and archive handling.
+  No live upstream accounts or game library were accessed for these tests.
+- All **10 distribution Python tests** passed.
+- Skin-agent smoke checks passed, including opt-in and missing files/bridge.
+  The real authlib/Fabric normal and compatibility-loader matrix passed on
+  **1.8.9 and 26.3**, in classic/slim/disabled modes. The real Secure Skins 1.0.1
+  transport test and shipped OneConfig 1.7.0 head-reader regression passed.
+  These are fresh headless checks, not new in-game rendering verification.
+- Workspace all-target Clippy completed with **13 diagnostics** in existing or
+  upstream code; none concern the translation-audit adjustment. No lint cleanup
+  was applied.
+- Whole-workspace formatting checks report **90 files**, all also unformatted
+  in the pre-update fork or pinned upstream input under the same formatter.
+  Diff whitespace checking reports only an extra trailing blank line already in
+  upstream's exact `components/package_row.rs`. Retained upstream formatting.
+- Changed documentation links were checked. The platform badge returned an SVG
+  containing macOS/Windows/Linux and `#f5c2e7`. No screenshot or automated visual
+  comparison was taken or performed.
+
+Logs: `/tmp/oneforall-2.10.2-validation/`. Recovery bundle and final metadata:
+`/home/user/.codex/backups/OneForAllLauncher/20261113T090947-2.10.2/`.
+The merge, audit correction and documentation are separate local commits.
+
+Owner testing still needed: wardrobe resizing and offline skin selection,
+PolyPlus heads, offline/Ely.by/custom launches, context menus and overlays,
+settings search/folder choices, migration to a new instance, compatibility
+prompts and representative ZIP64 imports. Windows GPU behavior and Windows/macOS
+package validation require their respective platforms. The 2.10.1 owner results
+below are historical evidence and do not establish new 2.10.2 UI/game coverage.
+
+
+## Local 2.10.1 integration (2026-11-12)
+
+Publication authorization (2026-11-12): after confirming offline/Ely.by skins
+and head previews in game, the owner authorized committing the update and
+pushing it to trigger the automatic release. The local-only statements below
+describe the earlier testing phase; platform/package checks remain limited as
+documented. See the maintainer handoff for current publication instructions.
+
+The owner requested local integration and testing before committing. Stable
+upstream `oneclient-2.10.1` is pinned to
+`ec784c912792f619dd88c788f97d7477be361bd2`. Its ten commits since 2.10.0 are
+prepared as an **uncommitted merge** over fork `3544820f`. No commit, push,
+release dispatch or publication was performed during this update.
+
+The only merge conflict was README.md; the fork's documentation was retained,
+including the custom README-only icon and the published 2.10.0 download links.
+The upstream COPR instruction change is irrelevant to this fork's distribution.
+All 37 upstream-changed files that had no fork changes match the 2.10.1 release
+exactly. Reviewed the remaining merge intersections in onboarding, hooks,
+translations, settings order, exports and game launch. Account storage, private
+paths, game-library selection, package/OS identity, updater key and local-skin
+hook source are unchanged. Cargo.lock only changes workspace versions.
+
+Checks run on Linux with Rust 1.98.0, Python 3 and Java 25.0.5:
+
+- The Linux debug build passed: `target/debug/oneforall_app`, version 2.10.1.
+  It was built without opening the launcher or changing live launcher data.
+- All **1,204 workspace Rust library tests** passed. The same **14 rendering
+  tests** in the markdown-image and lobby-panel suites were explicitly excluded.
+  Coverage includes the new upstream folder-pack controls, shared disabled-pack
+  state, punctuation validation and read-only dedicated-folder synchronization.
+- The temporary-library integration test passed, reusing existing instances and
+  registered Java while keeping fork configuration private. All **16 offline
+  account integration tests** passed as well, covering stored provider identity,
+  default selection, invalid-name overrides and network-free offline accounts.
+- All **10 distribution Python tests** passed.
+- The offline-skin headless smoke suite passed, including Ornithe, opt-in,
+  missing-file and missing-bridge behavior. Real authlib and Fabric normal/
+  compatibility loaders passed for **1.8.9 and 26.3**, in classic, slim and disabled
+  modes. The real Secure Skins 1.0.1 transport regression passed on 26.3, preserving
+  remote HTTPS. These are headless checks, not new in-game rendering evidence.
+- Workspace Clippy with all targets completed with **13 diagnostics**, all in
+  files unchanged from the pre-update fork. No lint fixes were applied.
+- Whole-workspace `cargo fmt --check` still fails on **88 files**. Compared those
+  files against the pre-update fork and upstream release with the same formatter:
+  every reported file already has formatting differences in one of those inputs.
+  Kept that formatting to avoid an unrelated bulk rewrite.
+
+The final documentation links, conflict-marker and diff whitespace checks are
+recorded with the local validation artifacts. Detailed logs are in
+`/tmp/oneforall-2.10.1-validation/`; the source pin, patch and test-build metadata
+are backed up outside the repository under
+`/home/user/.codex/backups/OneForAllLauncher/20261112-2.10.1/`.
+
+### Follow-up: PolyPlus offline head previews (2026-11-12)
+
+The owner reports working Ely.by/local body skins but a missing offline head
+icon in the updated PolyPlus UI. Inspected PolyPlus 2.0.2's shipped account/social
+classes and upstream source: they use OneConfig's public `PlayerHead` component.
+OneConfig 1.7.0's shipped reader directly requests a session profile over HTTP,
+bypassing the authlib methods the existing local hook overrides.
+
+A direct-profile regression failed before the change, before sending a request.
+The hook now routes only the selected offline UUID's exact public session-profile
+URL to an unpredictable loopback profile capability. It returns the standard
+unsigned textures property pointing to the existing private PNG. Other UUIDs,
+authentication services and remote TLS behavior are preserved. No injector source
+was copied. Agent/bridge version 5 filenames preserve older running processes.
+
+After this change:
+
+- The refreshed Linux debug launcher build passed, embedding the source-built
+  version 5 agent/bridge. No live launcher settings or installed mod JARs changed.
+- All **682 core/app library tests** passed (366 + 316); the same 14 rendering
+  tests were excluded. All 10 distribution Python tests also passed.
+- The **18-version skin matrix** passed on Java 25. Minecraft 1.8.9 also passed
+  Java 8. Classic, slim and disabled modes cover the new profile route, existing
+  skin APIs, private PNG bytes, other-UUID isolation and rejected endpoint access.
+- Real Fabric normal/compatibility loader checks passed on 1.8.9, 1.21.11 and
+  26.3. The actual Secure Skins 1.0.1 HTTPS-rewrite regression still passes.
+- The checksum-pinned OneConfig 1.7.0 head-reader regression passed on 26.3 for
+  classic/slim. It executes the shipped `skinUrl` and `httpGet` bytecode and regex
+  patterns, stubbing only game/Compose initialization and proxy access. An
+  external-HTTPS tripwire prevents accidental Mojang requests. This verifies the
+  profile-to-PNG pipeline, not actual in-game rendering of the icon.
+- Core/app Clippy completed with the existing diagnostics. Diff whitespace and
+  changed documentation links were checked. No screenshot or visual comparison
+  was performed.
+
+Logs are under `/tmp/oneforall-head-validation/`. Owner confirmation
+(2026-11-12): offline and Ely.by skin hooks and skin head previews work in game
+with the updated build. This is owner-reported rendering verification; no extra
+game/loader coverage was specified. Everything remains local and uncommitted
+alongside the pending upstream 2.10.1 merge.
+
+### Owner testing before committing 2.10.1
+
+Run the debug executable using the existing development profile. Recheck folder
+resource-pack discovery and enable/disable controls, including shared folders;
+instance names containing punctuation; read-only dedicated-folder syncing;
+onboarding/contrast and instance-settings order; crash-log upload confirmation;
+and offline launching, provider accounts and local skins. Verify that existing
+library locations and private account/settings paths remain intact. Windows GPU
+behavior and Windows/macOS packaging still need platform-specific validation.
+No screenshots or automated visual comparisons were performed. Keep the update
+local until the owner approves committing and publication.
+
+## Historical 2.10.0 rewrite validation
+
+The original rewrite targeted stable upstream `oneclient-2.10.0`, commit
+`3968fb95f98569de41ec341ef0da2ed63802cfc4` (released 2026-11-08).
+The initial validation used the local `rewrite/2.10.0` branch while remote `main`
+was `71699a140a820538335f67924961973c501eec41`; no tags or release assets were removed.
+See [the maintainer handoff](maintainer-handoff.md) for current publication instructions.
+
+## Automated checks (2026-11-09)
+
+Run with Rust 1.98.0, Java 25 and Python 3 on Linux. Build/test debug information
+and incremental compilation were disabled to keep resource use bounded.
+
+- The final Linux debug build passed: `target/debug/oneforall_app` (Rust 1.98.0).
+  The final application check passed as well. The binary was built without
+  opening the launcher or modifying live launcher data.
+- All **867 Rust library tests** passed across app, auth, common, core, database,
+  Minecraft metadata, networking and PolyPlus. Rendering/screenshot tests in
+  `components::markdown::image::tests` and `components::lobby::panel::tests` were
+  explicitly excluded. No screenshots or automated visual comparisons were made.
+- All **16 offline-account integration tests** passed separately. The app/auth
+  library tests passed again after the final form cleanup (313 + 26 tests).
+- Focused coverage includes legacy account deserialization/default selection,
+  provider identity collisions without changing game UUIDs, preview-setting
+  defaults/round trips, per-instance offline preference defaults/persistence,
+  offline/online launch policy, task-local request isolation and a counted local
+  server proving cache-only requests never connect.
+- Source-built offline skin agent tests passed with JVM bytecode verification:
+  local skin/slim model, unchanged remote players, opt-in gating and missing-file
+  fallback. PNG validation and account-kind/version/loader gates have Rust tests.
+- Source-built preview agent tests passed against the SHA-1-verified distributed
+  VanillaHUD `3.5.10+1.8.9` JAR. Tests cover named and missing profiles, cache,
+  mismatched profile responses, isolated loaders, scoped transformation and
+  suppression of HTTP lookups in offline mode.
+- The distributed VanillaHUD method was also tested headlessly without agents
+  during planning: null profiles/names and lookup exceptions returned named
+  fallbacks; an already named profile retained its name. This does not test the
+  entire in-game renderer.
+- Signed updater integration accepted the public signed fixture and rejected
+  a modified package. Distribution release-note/updater-manifest tests passed.
+- Clippy completed with 11 existing upstream diagnostics: bisect helpers, the
+  PolyPlus token-cache type, notification variant names, browser arguments/sorts
+  and chat test initializers. No diagnostics remain in the added account forms,
+  authentication, offline launch or local skin code.
+- Workflow YAML, translation-key coverage, SVG XML/currentColor, formatting of
+  the new Rust modules and diff whitespace checks passed. Storage/binary/bundle
+  identifiers and the updater public key match the previous fork; application
+  artwork matches upstream exactly. `README_LOCAL.md` is absent.
+
+The initial replacement series contains seven focused commits: installation/updates,
+retained account support, the preview toggle, provider identities, offline launch,
+local wardrobe and maintenance documentation. Follow-up commits cover onboarding,
+shared libraries, skin-loader compatibility and user documentation. The assembled tree was checked
+against the archived implementation snapshot before the validation report was
+finalized. Backups are local and excluded from the replacement history.
+
+## Follow-up: broader skins and installation guidance
+
+- Removed the Minecraft/loader gate while retaining the offline-account-only
+  gate. The owner confirms the original 1.8.9/Ornithe renderer works in game.
+- Added shared authlib APIs and legacy skin-URL handling. Headless tests cover
+  actual authlib generations 1.5, 2, 3, 4, 5, 6, 7, 9 and 10, with classic/slim,
+  opt-in gating, other-player isolation and isolated loaders. A separately source-built bootstrap
+  bridge also covers loaders without access to the system agent classpath. Authlib PNGs
+  are served only over loopback; the hook performs no external skin requests.
+- Tested the pinned 18-version matrix from beta 1.7.3 through 26.3 on Java 25;
+  older subsets also passed Java 8, mid-range subsets Java 17 and current
+  1.21.x subsets Java 21. Original beta, 1.6.4, 1.7.2 and 1.7.5 client URL call sites were audited
+  headlessly. This does not replace owner testing of actual game rendering.
+- Core/app regression tests passed: 357 + 313, with the same 14 rendering tests
+  excluded. The Linux debug build passed; Clippy completed with existing upstream
+  diagnostics. The new Rust modules were formatted; the lockfile is unchanged.
+- Fixed the skipped update-consent step: Preferences now leads to Updates, and
+  Summary's Back button returns to Updates. Existing installs retain their saved
+  update choice; the owner should verify a fresh onboarding run.
+- Added [installation troubleshooting](installation-troubleshooting.md) with
+  official Microsoft/Apple per-app instructions, CPU/OS compatibility guidance
+  and four clearly marked owner screenshot placeholders. No screenshots were
+  captured by automation.
+
+## Follow-up: shared libraries and onboarding defaults
+
+- Added an explicit OneClient default folder choice using upstream's release path
+  and legacy-location detection. Existing custom libraries are recognized through
+  a read-only catalog check. Fork accounts/configuration remain independent.
+- Verified upstream → fork → upstream migration/reopen behavior with temporary
+  data, including instance preservation and the additive offline preference.
+  No live upstream or fork library was used for these tests.
+- Fresh setup preselects automatic updates and focuses Next. Next confirms the
+  choice; existing installs keep their saved preference. A headless keyboard-event
+  test confirmed Enter activates Next without a click, rendering or pixel capture.
+- Passed 736 common/database/core/app tests (31 + 30 + 359 + 316), including the
+  added keyboard-event test in the final app run. The same 14 rendering tests were
+  excluded. The Linux debug build passed. Clippy completed with the same 11
+  upstream diagnostics; Cargo.lock is unchanged.
+
+## Follow-up: active upstream folder and library settings
+
+- Corrected the selector's distinction between upstream's configuration root and
+  its actual game library. Read only upstream's saved `data_dir`, including custom
+  drives; unavailable drives and malformed locations produce errors rather than
+  silently creating another library. No live launcher settings were changed.
+- Fresh setup defaults to the OneClient library. Existing fork settings with
+  `data_dir: null` or a custom path retain those locations. Accounts, launcher
+  settings, themes and logs remain in the existing private fork directory.
+- Added OneClient, OneForAllLauncher and custom library choices under Launcher →
+  Folders and files. Selecting a library saves the path and quits; reopening binds
+  paths and the catalog together. Explicit file moves remain separate, exclude
+  private configuration and preserve reused sources without cleanup offers.
+- Passed 363 core and 316 app library tests, with the same 14 rendering tests
+  excluded. A separate temporary-library integration test passed: a ready stock
+  instance and its registered Java runtime were reused, every game/cache/managed
+  Java path used the library, private paths stayed separate, and selecting another
+  library preserved preferences and original files until restart. These checks
+  do not replace an actual game launch or owner UI verification.
+- The refreshed Linux debug build passed. Clippy completed with the same 11
+  upstream diagnostics and none in the new library-selection code. New/changed
+  Rust sections, translation-key coverage, Markdown links and diff whitespace
+  checks passed. Cargo.lock is unchanged. No screenshots or visual comparisons
+  were performed.
+
+## Owner checks and 26.3 log review
+
+The owner confirms shared OneClient data/instances and Launch Offline work. The
+game library has been moved to the stock default; the test launcher's saved path
+already points there. No live settings were changed during this investigation.
+Ornithe 1.8.9 skins remain confirmed, but the owner reports other versions,
+including 26.3/Fabric, still render without the selected local skin.
+
+Reviewed [the supplied 26.3 log](https://mclo.gs/K7KDjNY) before changing the hook:
+
+- The agent and offline-account/PNG properties are present. The skin downloader
+  later reports an HTTPS handshake failure for the selected profile, rather than
+  a successful private HTTP skin request. The hostname is not shown in that stack.
+- Mojang user-properties/Realms and PolyPlus cosmetics, WebSocket and EOS/P2P
+  authorization fail with invalid sessions/401 responses. These are authenticated
+  game/mod features that an offline identity does not provide; the launcher must
+  not manufacture successful authentication or suppress those service checks.
+- OpenGL backend creation fails, then Vulkan initializes successfully on the
+  recorded AMD/Mesa setup. This is a separate graphics/native-path concern, not
+  evidence of a local-skin failure or a fatal startup crash in this log.
+- Missing optional integration classes, refmaps and mod version-format warnings
+  originate in the modpack. The game proceeds through resource loading.
+
+The old authlib and basic Knot tests passed before the correction. A new loader
+that explicitly refuses the bridge package reproduced silent hook skipping on
+real authlib 10.0.77. Calls now resolve the bootstrap bridge directly through JDK
+reflection without consulting the game loader during transformation. That
+regression passes for 1.8.9, 1.21.11 and 26.3; real Fabric 0.20.1 Knot and
+compatibility loaders also pass with isolated classpaths. Version 3 filenames
+separate the new helpers, and credential-free activation/use messages aid the
+next owner test. This fixes a reproduced loader defect; it does **not** establish
+that every cause of the supplied modpack's skin failure is resolved. Recheck
+26.3 in game before describing it as verified or publishing a release.
+
+The corrected 18-version matrix passed on Java 25, with the supported older cases
+also passing Java 8. Ornithe/gating/missing-file and missing-bridge checks passed.
+The targeted real Fabric runs passed for 1.8.9, 1.21.11 and 26.3, covering slim,
+classic and disabled modes under normal and compatibility Knot loaders. The
+679 core/app library tests passed (363 + 316), excluding the same 14 rendering
+tests. The refreshed Linux debug build passed. Clippy completed with the same
+11 upstream diagnostics and none in the changed skin-hook integration. Python
+syntax, changed Markdown links, Rust formatting for the changed module and diff
+whitespace checks passed. No UI screenshots or visual comparisons were performed.
+
+## Follow-up: Secure Skins transport compatibility
+
+The [next owner log](https://mclo.gs/TGH7I2i) confirms the version 3 hook activates
+and supplies local textures, followed by the same skin-download TLS failure.
+The installed pack includes Secure Skins 1.0.1. Its actual `useHttpsUrl` method
+unconditionally replaces HTTP with HTTPS at the head of `downloadAndRegisterSkin`.
+This changes the private HTTP skin endpoint into an HTTPS endpoint the loopback
+server does not implement. The previous classloader correction was insufficient
+for this pack; the new log establishes a distinct transport conflict.
+
+Reviewed authlib-injector's scoped URL-routing design. The offline hook keeps its
+independent source implementation and now normalizes the exact private capability
+at URL/URI creation, after the mod's rewrite. Other HTTPS URLs, certificate checks
+and unrelated local endpoints are preserved. Version 4 helper files distinguish
+this correction from the version 3 test build.
+
+A regression downloads the checksum-pinned official Secure Skins artifact and
+executes its unchanged URL-rewrite method. It failed before the correction and
+passes afterward, including retrieving the selected PNG and retaining HTTPS for
+other endpoints. It also checks `URL(String)`, `URI(String)` and `URI.create` paths.
+This is a concrete transport regression; the owner still verifies actual rendering.
+
+The corrected 18-version matrix passed on Java 25, with nine older version cases
+also passing Java 8. Real Fabric normal/compatibility loader runs passed for
+1.8.9, 1.21.11 and 26.3, including the Secure Skins transport regression on 26.3.
+Ornithe/fallback smoke checks and all 679 core/app tests passed; the same 14
+rendering tests were excluded. The Linux debug build passed, Clippy completed
+with the same 11 upstream diagnostics, and formatting/link/diff checks passed.
+No screenshots or automated visual comparisons were performed.
+
+The maintainer-provided offline-launch image is included in the README gallery.
+[Security-verification notes](security-verification.md) document researched free
+CodeQL, OpenSSF Scorecard, review and build-provenance options and their limits.
+GitHub reported CodeQL default setup as not configured during the initial
+research. It was subsequently enabled at the owner's request; see below. No
+build attestation has been added.
+
+## Follow-up: managed CodeQL setup
+
+Enabled GitHub's managed default setup with the Extended query suite, standard
+hosted runners and remote/local sources where supported. The
+[initial setup run](https://github.com/liwwyy/OneForAllLauncher/actions/runs/42659907902)
+includes Rust, Java/Kotlin, Python and GitHub Actions. It analyzes the published
+`main` commit `71699a140a820538335f67924961973c501eec41`, not the rewritten
+checkout. At setup time, no source commit, tag or release had been pushed. The
+rewrite needs analysis of its own published commit. See [configuration and limits](security-verification.md#codeql-configuration).
+
+All four analysis jobs completed successfully. GitHub confirms all four languages,
+the Extended suite and a configured weekly schedule. The baseline contains
+**260 open alerts**: 245 Rust, 3 Java, 11 Python and 1 Actions. GitHub's query
+severity labels are 8 critical, 250 high and 2 medium; 237 findings use Rust's
+path-injection rule. These alerts remain untriaged and none were dismissed.
+Review the new rewrite scan before release rather than treating job success as
+security clearance. This documentation-only follow-up passed new local Markdown-link
+and diff whitespace checks; no application rebuild was needed.
+
+## Manual acceptance before release
+
+Owner update (2026-11-09): opening the OneConfig HUD with an Ely.by account
+works in the owner's test. The compatibility-agent toggle state was not specified,
+so this does not establish that the workaround can be removed.
+
+Owner update (2026-11-09): offline skins now work on modern versions after the
+version 4 correction, in addition to the previously confirmed Ornithe 1.8.9 setup.
+Shared library operation and offline launch were already confirmed. This records
+the owner's report, not automated rendering verification or full platform coverage.
+
+1. Check the account screens, onboarding, approved icons and local wardrobe in
+   light/dark and Minecraft themes. The owner refreshed the onboarding and
+   account-manager screenshots; other account-dialog images remain from 2.9.
+   Check all three data
+   location choices, including a legacy/custom upstream library, then restart to
+   verify persistence. Verify fresh setup's OneClient default and an upgraded
+   fork's unchanged old location. Switch back to the OneForAllLauncher library in
+   Folders and files, then select OneClient again and verify its custom-path
+   instances and installed Java are reused. Use one launcher at a time when
+   sharing; verify accounts and launcher settings remain separate. On fresh
+   setup, press Enter on Updates without clicking a choice; also check manual
+   selection and Back/Next behavior.
+2. Disconnect before startup and launch a fully installed game. Check the
+   eight-second shared probe, all launch labels, right-click Launch Offline,
+   the per-instance toggle (default off), busy-state guards and recovery online.
+   Explicit offline mode should launch without a connectivity wait. Missing
+   metadata, files or Java must produce an installation error, not downloads.
+3. Check expired Microsoft/Ely.by/custom accounts in offline mode: preserve saved
+   credentials, selected account, player name and game UUID. Offline mode does
+   not enable authenticated multiplayer. Test equal names on different providers
+   and reject a second equal name on the same provider.
+4. Minecraft 1.8.9/Ornithe and modern-version local skins have been confirmed in
+   game by the owner. Continue checking untested Vanilla/Fabric/Forge/NeoForge/Quilt
+   setups and representative old and new versions as available: choose a PNG,
+   switch classic/slim, restart and restore the default. Verify only the local
+   player's skin changes. Other account kinds must receive no hook, including
+   when launched offline. Versions before 1.8 use the classic model. Check
+   installed skin mods separately.
+
+5. Test current VanillaHUD 3.5.10 with Ely.by and custom accounts, with the preview
+   workaround disabled and enabled. Exercise the OneConfig tab-list/head editor
+   and unavailable profile services. Authlib-injector must remain enabled. The
+   upstream null-name fix exists; file an issue/PR only if a failure is reproduced.
+6. Build all release platforms through CI and test signed upgrades from the old
+   fork, custom data paths, preserved accounts/settings/instances, OS shortcuts,
+   URL handlers, tray launch and simultaneous upstream/fork operation. Check
+   Windows installation and both macOS architectures; these cannot be verified
+   by this Linux build alone.
+
+## Recoverable history replacement
+
+The original fork and reviewed planning work are retained locally in
+`archive/pre-rewrite-20261109`. The full pre-rewrite Git bundle is outside the
+repository at:
+
+`/home/user/.codex/backups/OneForAllLauncher/20261109T092735Z/before-rewrite.bundle`
+
+Keep upstream history and old release tags. Review the new commit series and
+`git diff oneclient-2.10.0...rewrite/2.10.0`, then record the new tip. A published
+replacement must use the exact expected remote main SHA with `--force-with-lease`;
+stop if another maintainer has moved it. Publish signed `oneforall-2.10.0` only
+from the reviewed release commit after the owner's manual UI test result, as
+required by [AGENTS.md](../AGENTS.md). Do not dispatch the release workflow from
+a development snapshot.
+
+The maintainer-approved [offline setup guide](oneclient-modpack-alternative-guide.md) now walks through
+Freesm offline-account creation, installing the official OneClient Modrinth pack,
+the `.mrpack` import alternative, initial downloads and authenticated-service
+limitations. The README links to it. Interface labels were checked against
+Freesm 2.3.2's [account controls](https://github.com/FreesmTeam/FreesmLauncher/blob/2.3.2/launcher/ui/pages/global/AccountListPage.ui)
+and [import page](https://github.com/FreesmTeam/FreesmLauncher/blob/2.3.2/launcher/ui/pages/modplatform/ImportPage.h),
+and the pack link against [Polyfrost's Modrinth listing](https://modrinth.com/modpack/oneclient-modpack).
+These are source/documentation checks, not a claimed manual Freesm installation.

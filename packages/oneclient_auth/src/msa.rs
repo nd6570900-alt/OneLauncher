@@ -238,13 +238,13 @@ fn redirect_page_html(page: RedirectPage) -> String {
             "#45de2b",
             r#"<svg viewBox="0 0 24 24" class="glyph"><path d="M20 6 9 17l-5-5"/></svg>"#,
             "You're signed in!",
-            "You can close this tab and return to OneClient.",
+            "You can close this tab and return to OneForAllLauncher.",
         ),
         RedirectPage::Failed => (
             "#ff0000",
             r#"<svg viewBox="0 0 24 24" class="glyph"><path d="M18 6 6 18M6 6l12 12"/></svg>"#,
             "Sign-in failed",
-            "Something went wrong. Close this tab and try again from OneClient.",
+            "Something went wrong. Close this tab and try again from OneForAllLauncher.",
         ),
     };
 
@@ -252,7 +252,7 @@ fn redirect_page_html(page: RedirectPage) -> String {
         r##"<!doctype html><html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OneClient</title>
+<title>OneForAllLauncher</title>
 <style>
 *{{box-sizing:border-box;margin:0;padding:0}}
 :root{{--accent:{accent}}}
@@ -348,6 +348,7 @@ pub async fn refresh_microsoft_account(
     tracing::debug!("refreshing Microsoft account token");
     let msa = refresh_msa_token(client, &creds.refresh_token).await?;
     let mut account = account_from_msa_token(client, msa, |_, _, _| {}).await?;
+    account.profile_id = creds.profile_id;
     account.id = creds.id;
     Ok(account)
 }
@@ -551,6 +552,7 @@ async fn account_from_msa_token(
     on_progress("Loading profile", AUTH_STEPS, AUTH_STEPS);
 
     Ok(MinecraftAccount {
+        profile_id: None,
         id: profile.id.unwrap_or_default(),
         username: profile.name,
         access_token: minecraft_token.access_token,
@@ -560,6 +562,8 @@ async fn account_from_msa_token(
         #[allow(clippy::cast_possible_wrap)]
         expires: Utc::now() + chrono::TimeDelta::seconds(minecraft_token.expires_in as i64),
         kind: AccountKind::Microsoft,
+        elyby_client_id: None,
+        custom: None,
         signed_out: false,
     })
 }

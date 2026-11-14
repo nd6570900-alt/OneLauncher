@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use freya::prelude::*;
 use freya::router::RouterContext;
-use oneclient_core::relocate::RelocationPlan;
+use oneclient_core::relocate::{LibraryPlan, RelocationPlan};
 use oneclient_core::settings::{LaunchBehaviour, LauncherSettings, data_dir};
 use oneclient_core::storage::format_bytes;
 
@@ -28,6 +28,13 @@ impl Component for SettingsLauncher {
         let settings = use_settings_snapshot().settings;
         let defaults = LauncherSettings::default();
         let dispatch = use_dispatch();
+
+        let automatic_updates = use_state({
+            let v = settings.auto_update;
+            move || v
+        });
+
+        let preview_compatibility = use_state({ let v = settings.preview_compatibility; move || v });
 
         let discord_rpc = use_state({
             let v = settings.discord_enabled;
@@ -66,6 +73,8 @@ impl Component for SettingsLauncher {
 
         let mut first = use_state(|| true);
         use_side_effect(move || {
+            let automatic = *automatic_updates.read();
+            let preview_fix = *preview_compatibility.read();
             let discord = *discord_rpc.read();
             let crash = *crash_reporting.read();
             let maximized = *start_maximized.read();
@@ -78,6 +87,8 @@ impl Component for SettingsLauncher {
                 return;
             }
             dispatch.edit_settings(|next| {
+                next.auto_update = automatic;
+                next.preview_compatibility = preview_fix;
                 next.discord_enabled = discord;
                 next.crash_reporting = crash;
                 next.start_maximized = maximized;
@@ -103,9 +114,26 @@ impl Component for SettingsLauncher {
             .text(t("oneclient.settings.launcher.terms.review"));
 
         settings_page()
-            .child(section_header(t(
-                "oneclient.settings.launcher.section.general",
-            )))
+            .child(section_header(t("fork.compatibility.section")))
+            .child(settings_row(IconType::CodeSnippet02, t("fork.compatibility.preview.title"), t("fork.compatibility.preview.description"), resettable(toggle(preview_compatibility), preview_compatibility, defaults.preview_compatibility)))
+            .child(section_header(t("fork.updates.section")))
+            .child(settings_row(
+                IconType::DownloadCloud02,
+                t("fork.updates.setting_title"),
+                t("fork.updates.setting_description"),
+                resettable(toggle(automatic_updates), automatic_updates, defaults.auto_update),
+            ))
+            .child(settings_row(
+                IconType::RefreshCw01,
+                t("fork.updates.check"),
+                t("fork.updates.check_description"),
+                Button::new().secondary().small().text(t("fork.updates.check")).on_press(move |_| {
+                    if let Ok(state) = crate::launcher::state() {
+                        crate::updater::spawn_update_check(false, state.services.events.clone());
+                    }
+                }),
+            ))
+            .child(section_header(t("oneclient.settings.launcher.section.general")))
             .child(settings_row(
                 IconType::Link03,
                 t("oneclient.settings.launcher.discord_rpc.title"),
@@ -184,6 +212,18 @@ impl Component for SettingsLauncher {
             .child(section_header(t(
                 "oneclient.settings.launcher.section.folders",
             )))
+            .child(settings_row(
+                IconType::Folder,
+                t("fork.library.private_title"),
+                oneclient_common::paths::config_dir()
+                    .map(|path| path.display().to_string())
+                    .unwrap_or_default(),
+                open_folder_button(
+                    oneclient_common::paths::config_dir()
+                        .map(Path::to_path_buf)
+                        .unwrap_or_default(),
+                ),
+            ))
             .child(DataFolder.into_element())
             .into_element()
     }
@@ -208,6 +248,12 @@ fn launch_behaviour_field(mut selected: State<LaunchBehaviour>) -> impl IntoElem
 #[derive(PartialEq)]
 struct DataFolder;
 
+#[derive(Clone, PartialEq)]
+enum FolderPlan {
+    Move(RelocationPlan),
+    Use(LibraryPlan),
+}
+
 impl Component for DataFolder {
     fn render(&self) -> impl IntoElement {
         let discard = use_discard_leftovers();
@@ -215,7 +261,7 @@ impl Component for DataFolder {
         let data_dir = use_launcher().data_dir;
         let actions = use_dispatch();
 
-        let pending = use_state(|| None::<RelocationPlan>);
+        let pending = use_state(|| None::<FolderPlan>);
         let error = use_state(|| None::<String>);
         let checking = use_state(|| false);
 
@@ -225,27 +271,31 @@ impl Component for DataFolder {
             .secondary()
             .small()
             .disabled(checking_now)
-            .on_press(move |_| browse(pending, error, checking))
+            .on_press(move |_| plan(pending, error, checking, Source::MovePicked))
             .text(if checking_now {
                 t("oneclient.settings.launcher.data_folder.checking")
             } else {
-                t("oneclient.settings.launcher.data_folder.change")
+                t("fork.library.move")
             });
 
-        let mut buttons = Vec::new();
-
-        if !data_dir::is_default(Path::new(&data_dir)) {
-            buttons.push(
-                Button::new()
-                    .secondary()
-                    .small()
-                    .disabled(checking_now)
-                    .on_press(move |_| plan(pending, error, checking, Source::Default))
-                    .text(t("oneclient.common.reset")),
-            );
-        }
-
-        buttons.push(change);
+        let choices = Dropdown::new(
+            t("fork.library.choose"),
+            vec![
+                t("fork.onboarding.location.oneclient").to_string(),
+                t("fork.onboarding.location.oneforall").to_string(),
+                t("fork.library.custom").to_string(),
+            ],
+        )
+        .width(Size::px(220.))
+        .height(Size::px(34.))
+        .on_select(move |idx: usize| {
+            let source = match idx {
+                0 => Source::OneClient,
+                1 => Source::OneForAll,
+                _ => Source::Picked,
+            };
+            plan(pending, error, checking, source);
+        });
 
         let mut section = rect()
             .vertical()
@@ -253,9 +303,19 @@ impl Component for DataFolder {
             .spacing(4.)
             .child(settings_row(
                 IconType::Folder,
-                t("oneclient.settings.launcher.data_folder.title"),
+                t("fork.library.title"),
                 data_dir.clone(),
-                row_actions(PathBuf::from(data_dir), buttons),
+                rect()
+                    .horizontal()
+                    .cross_align(Alignment::Center)
+                    .spacing(8.)
+                    .child(open_folder_button(PathBuf::from(data_dir)))
+                    .child(choices)
+                    .child(change),
+            ))
+            .child(note(
+                t("fork.library.description").to_string(),
+                colors::fg_secondary(),
             ));
 
         if let Some(message) = error.read().clone() {
@@ -294,7 +354,10 @@ impl Component for DataFolder {
         }
 
         if let Some(planned) = pending.read().clone() {
-            section = section.child(confirm_move(planned, pending, actions));
+            section = section.child(match planned {
+                FolderPlan::Move(planned) => confirm_move(planned, pending, actions),
+                FolderPlan::Use(planned) => confirm_library(planned, pending, error, checking),
+            });
         }
 
         section.into_element()
@@ -304,19 +367,13 @@ impl Component for DataFolder {
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Source {
     Picked,
-    Default,
-}
-
-fn browse(
-    pending: State<Option<RelocationPlan>>,
-    error: State<Option<String>>,
-    checking: State<bool>,
-) {
-    plan(pending, error, checking, Source::Picked);
+    MovePicked,
+    OneClient,
+    OneForAll,
 }
 
 fn plan(
-    mut pending: State<Option<RelocationPlan>>,
+    mut pending: State<Option<FolderPlan>>,
     mut error: State<Option<String>>,
     mut checking: State<bool>,
     source: Source,
@@ -325,9 +382,10 @@ fn plan(
         return;
     }
 
+    checking.set(true);
     spawn(async move {
         let picked = match source {
-            Source::Picked => {
+            Source::Picked | Source::MovePicked => {
                 let mut dialog = rfd::AsyncFileDialog::new()
                     .set_title(t("oneclient.settings.launcher.data_folder.picker_title"));
 
@@ -336,18 +394,18 @@ fn plan(
                 }
 
                 let Some(handle) = dialog.pick_folder().await else {
+                    checking.set(false);
                     return;
                 };
 
                 Some(handle.path().to_path_buf())
             }
-            Source::Default => None,
+            Source::OneClient | Source::OneForAll => None,
         };
 
-        checking.set(true);
         error.set(None);
 
-        match crate::launcher::off_ui(async move { plan_move(picked.as_deref()).await }).await {
+        match crate::launcher::off_ui(async move { plan_folder(source, picked).await }).await {
             Ok(planned) => pending.set(Some(planned)),
             Err(message) => error.set(Some(message)),
         }
@@ -356,13 +414,26 @@ fn plan(
     });
 }
 
-async fn plan_move(picked: Option<&Path>) -> Result<RelocationPlan, String> {
+async fn plan_folder(source: Source, picked: Option<PathBuf>) -> Result<FolderPlan, String> {
     let state = crate::launcher::state().map_err(|err| err.to_string())?;
-
-    match picked {
-        Some(picked) => oneclient_core::relocate::plan(&state, picked).await,
-        None => oneclient_core::relocate::plan_default(&state).await,
+    let path = match source {
+        Source::OneClient => data_dir::oneclient_folder().await?,
+        Source::OneForAll => data_dir::default_path()?,
+        Source::Picked | Source::MovePicked => picked.ok_or("Choose a folder first.")?,
+    };
+    if source == Source::MovePicked {
+        return oneclient_core::relocate::plan(&state, &path)
+            .await
+            .map(FolderPlan::Move);
     }
+    let path = if source == Source::Picked {
+        data_dir::resolve(&path).await?
+    } else {
+        path
+    };
+    oneclient_core::relocate::plan_library(&state, &path)
+        .await
+        .map(FolderPlan::Use)
 }
 
 fn row_actions(folder: PathBuf, actions: Vec<Button>) -> impl IntoElement {
@@ -379,9 +450,110 @@ fn row_actions(folder: PathBuf, actions: Vec<Button>) -> impl IntoElement {
     row
 }
 
+fn confirm_library(
+    planned: LibraryPlan,
+    mut pending: State<Option<FolderPlan>>,
+    mut error: State<Option<String>>,
+    mut saving: State<bool>,
+) -> Element {
+    let busy = *saving.read();
+    let to = planned.to.clone();
+    let mut card = rect()
+        .vertical()
+        .width(Size::px(460.))
+        .max_width(Size::window_percent(90.))
+        .spacing(14.)
+        .padding(Gaps::new_all(20.))
+        .corner_radius(rounded(14.))
+        .background(colors::page_elevated())
+        .border(border_all_color(1., colors::component_border()))
+        .child(
+            label()
+                .text(t("fork.library.confirm_title"))
+                .font_size(text_size(16.))
+                .font_weight(FontWeight::SEMI_BOLD),
+        )
+        .child(path_block(
+            t("oneclient.settings.launcher.move.from"),
+            &planned.from,
+        ))
+        .child(path_block(t("oneclient.settings.launcher.move.to"), &to))
+        .child(note(
+            t("fork.library.confirm_description").to_string(),
+            colors::fg_secondary(),
+        ));
+    if let Some(warning) = &planned.warning {
+        card = card.child(note(warning.clone(), colors::code_warn()));
+    }
+    if let Some(message) = error.read().clone() {
+        card = card.child(note(message, colors::danger()));
+    }
+    card = card.child(
+        rect()
+            .horizontal()
+            .width(Size::fill())
+            .main_align(Alignment::End)
+            .spacing(8.)
+            .child(
+                Button::new()
+                    .secondary()
+                    .disabled(busy)
+                    .on_press(move |_| pending.set(None))
+                    .text(t("oneclient.common.cancel")),
+            )
+            .child(
+                Button::new()
+                    .primary()
+                    .disabled(busy)
+                    .on_press(move |_| {
+                        if *saving.peek() {
+                            return;
+                        }
+                        saving.set(true);
+                        error.set(None);
+                        let planned = planned.clone();
+                        spawn_in_window(async move {
+                            let result = crate::launcher::off_ui(async move {
+                                let state =
+                                    crate::launcher::state().map_err(|error| error.to_string())?;
+                                oneclient_core::relocate::use_library(&state, &planned).await
+                            })
+                            .await;
+                            match result {
+                                Ok(()) => crate::platform::quit(),
+                                Err(message) => {
+                                    error.set(Some(message));
+                                    saving.set(false);
+                                }
+                            }
+                        });
+                    })
+                    .text(if busy {
+                        t("oneclient.settings.launcher.data_folder.checking")
+                    } else {
+                        t("fork.library.confirm")
+                    }),
+            ),
+    );
+    OverlayPopup::new()
+        .on_close(move |_| {
+            if !*saving.peek() {
+                pending.set(None);
+            }
+        })
+        .child(
+            rect()
+                .width(Size::window_percent(100.))
+                .height(Size::window_percent(100.))
+                .center()
+                .child(card),
+        )
+        .into_element()
+}
+
 fn confirm_move(
     planned: RelocationPlan,
-    mut pending: State<Option<RelocationPlan>>,
+    mut pending: State<Option<FolderPlan>>,
     actions: Actions,
 ) -> Element {
     let start = planned.clone();

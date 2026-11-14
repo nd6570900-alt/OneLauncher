@@ -7,7 +7,7 @@ use oneclient_events::EventBus;
 
 use crate::data::{AccountKind, MinecraftAccount};
 use crate::error::{AuthError, AuthResult};
-use crate::offline::{offline_account, validate_offline_username};
+use crate::offline::{offline_account, validate_offline_username_with_override};
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, Default)]
 pub struct CredentialsStore {
@@ -60,6 +60,7 @@ impl CredentialsStore {
         account: MinecraftAccount,
         events: &EventBus,
     ) -> AuthResult<MinecraftAccount> {
+        let account = self.prepare_account(account)?;
         self.users.insert(account.id, account.clone());
 
         if self.default_user.is_none() {
@@ -75,8 +76,35 @@ impl CredentialsStore {
         Ok(account)
     }
 
+    fn prepare_account(&self, mut account: MinecraftAccount) -> AuthResult<MinecraftAccount> {
+        let game_id = account.game_id();
+        let existing = self.users.values().find(|entry| {
+            entry.kind == account.kind && entry.game_id() == game_id
+                && entry.custom.as_ref().map(|c| &c.server.api_url)
+                    == account.custom.as_ref().map(|c| &c.server.api_url)
+        });
+        if self.users.values().any(|entry| {
+            entry.kind == account.kind
+                && entry.username.eq_ignore_ascii_case(&account.username)
+                && existing.is_none_or(|same| same.id != entry.id)
+        }) {
+            return Err(AuthError::DuplicateUsername { username: account.username });
+        }
+        if let Some(existing) = existing {
+            account.id = existing.id;
+            account.profile_id = existing.profile_id;
+        } else if self.users.contains_key(&account.id) {
+            account.profile_id = Some(game_id);
+            loop {
+                account.id = Uuid::new_v4();
+                if !self.users.contains_key(&account.id) { break; }
+            }
+        }
+        Ok(account)
+    }
+
     pub fn add_offline_account(&mut self, username: String) -> AuthResult<MinecraftAccount> {
-        let account = self.insert_offline_account(username)?;
+        let account = self.insert_offline_account(username, false)?;
         Ok(account)
     }
 
@@ -85,28 +113,49 @@ impl CredentialsStore {
         &mut self,
         username: String,
     ) -> AuthResult<MinecraftAccount> {
-        let account = self.insert_offline_account(username)?;
+        let account = self.insert_offline_account(username, false)?;
         self.save().await?;
         Ok(account)
     }
 
-    fn insert_offline_account(&mut self, username: String) -> AuthResult<MinecraftAccount> {
-        if !self.has_microsoft_account() {
-            return Err(AuthError::OfflineRequiresMicrosoft);
-        }
+    pub fn add_offline_account_with_override(
+        &mut self,
+        username: String,
+        allow_invalid: bool,
+    ) -> AuthResult<MinecraftAccount> {
+        self.insert_offline_account(username, allow_invalid)
+    }
 
-        validate_offline_username(&username)?;
+    pub async fn add_offline_account_with_override_and_save(
+        &mut self,
+        username: String,
+        allow_invalid: bool,
+    ) -> AuthResult<MinecraftAccount> {
+        let account = self.insert_offline_account(username, allow_invalid)?;
+        self.save().await?;
+        Ok(account)
+    }
+
+    fn insert_offline_account(
+        &mut self,
+        username: String,
+        allow_invalid: bool,
+    ) -> AuthResult<MinecraftAccount> {
+        validate_offline_username_with_override(&username, allow_invalid)?;
 
         if self
             .users
             .values()
-            .any(|u| u.username.eq_ignore_ascii_case(&username))
+            .any(|u| u.kind == AccountKind::Offline && u.username.eq_ignore_ascii_case(&username))
         {
             return Err(AuthError::DuplicateUsername { username });
         }
 
-        let account = offline_account(username);
+        let account = self.prepare_account(offline_account(username))?;
         self.users.insert(account.id, account.clone());
+        if self.default_user.is_none() {
+            self.default_user = Some(account.id);
+        }
         Ok(account)
     }
 
@@ -114,7 +163,7 @@ impl CredentialsStore {
     pub async fn commit_refreshed_account(&mut self, account: MinecraftAccount) -> AuthResult<()> {
         self.users.insert(account.id, account);
         self.save().await?;
-        tracing::debug!("stored refreshed Microsoft account");
+        tracing::debug!("stored refreshed account");
         Ok(())
     }
 
@@ -205,10 +254,6 @@ impl CredentialsStore {
             return Ok(None);
         };
 
-        if account.is_offline() && !self.has_microsoft_account() {
-            return Err(AuthError::OfflineRequiresMicrosoft);
-        }
-
         Ok(Some(account))
     }
 }
@@ -216,9 +261,53 @@ impl CredentialsStore {
 /// A transient failure must keep the existing token discarding it because
 /// Wi-Fi dropped would sign the user out of a working account
 pub(crate) fn is_transient_auth_error(err: &AuthError) -> bool {
+    if let AuthError::Custom(error) = err {
+        return error.is_transient();
+    }
+    if let AuthError::Elyby(error) = err {
+        return error.is_transient();
+    }
     matches!(
         err,
         AuthError::Minecraft(crate::error::MinecraftAuthError::RequestError { source, .. })
             if source.is_connect() || source.is_timeout()
     )
+}
+
+#[cfg(test)]
+mod provider_identity_tests {
+    use super::*;
+
+    #[test]
+    fn same_name_requires_different_kinds_and_preserves_game_identity() {
+        let mut store = CredentialsStore::default();
+        let offline = store.add_offline_account("liwwyy".into()).unwrap();
+        let mut elyby = offline.clone();
+        elyby.kind = AccountKind::Elyby;
+        let elyby = store.prepare_account(elyby).unwrap();
+        assert_ne!(elyby.id, offline.id);
+        assert_eq!(elyby.game_id(), offline.game_id());
+        store.users.insert(elyby.id, elyby.clone());
+        let mut duplicate = elyby.clone();
+        duplicate.id = Uuid::new_v4();
+        duplicate.profile_id = None;
+        duplicate.username = "LIWWYY".into();
+        assert!(matches!(store.prepare_account(duplicate), Err(AuthError::DuplicateUsername { .. })));
+        let signed_in_again = store.prepare_account(elyby.clone()).unwrap();
+        assert_eq!(signed_in_again.id, elyby.id);
+        let raw = serde_json::to_string(&store).unwrap();
+        let restored: CredentialsStore = serde_json::from_str(&raw).unwrap();
+        assert_eq!(restored.users[&elyby.id].game_id(), offline.game_id());
+        assert_eq!(restored.default_user, Some(offline.id));
+    }
+
+    #[test]
+    fn legacy_accounts_need_no_identity_rewrite() {
+        let account = offline_account("Legacy".into());
+        let mut json = serde_json::to_value(&account).unwrap();
+        json.as_object_mut().unwrap().remove("profile_id");
+        let restored: MinecraftAccount = serde_json::from_value(json).unwrap();
+        assert_eq!(restored.id, account.id);
+        assert_eq!(restored.game_id(), account.id);
+    }
 }

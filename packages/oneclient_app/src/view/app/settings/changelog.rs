@@ -61,6 +61,13 @@ impl Component for SettingsChangelog {
         let entries = changelog_entries(&query).unwrap_or_default();
 
         settings_page()
+            .child(
+                label()
+                    .text(crate::constants::FORK_NOTICE)
+                    .width(Size::fill())
+                    .font_size(12.)
+                    .color(colors::fg_secondary()),
+            )
             .children(entries.into_iter().enumerate().map(|(i, entry)| {
                 let current = entry.version == installed_version;
                 ReleaseCard {
@@ -71,6 +78,12 @@ impl Component for SettingsChangelog {
                 }
                 .into_element()
             }))
+            .child(ReleaseCard {
+                version: "License (GPL-3.0-only)".to_string(),
+                current: false,
+                body: include_str!("../../../../../../LICENSE").to_string(),
+                initially_open: false,
+            })
             .into_element()
     }
 }

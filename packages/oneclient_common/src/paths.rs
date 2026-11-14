@@ -5,14 +5,14 @@ use std::sync::OnceLock;
 use crate::domain::{ContentType, ProviderId};
 use crate::error::{PathsError, PathsResult};
 
-const QUALIFIER: &str = "org";
-const ORGANIZATION: &str = "Polyfrost";
+const QUALIFIER: &str = "com";
+const ORGANIZATION: &str = "OneForAll";
 
 #[cfg(not(debug_assertions))]
-const APPLICATION: &str = "OneClient";
+const APPLICATION: &str = "OneForAllLauncher";
 
 #[cfg(debug_assertions)]
-const APPLICATION: &str = "OneClient-dev";
+const APPLICATION: &str = "OneForAllLauncher-dev";
 
 pub const SETTINGS_FILE: &str = "settings.json";
 pub const DATABASE_FILE: &str = "user_data.db";
@@ -50,6 +50,21 @@ fn resolve_default_dir() -> PathsResult<PathBuf> {
     }
 
     standard_dir()
+}
+
+/// Upstream's release location, offered only when explicitly selected by the user.
+/// The fork's own configuration/account directory remains independent.
+pub fn oneclient_default_dir() -> PathsResult<PathBuf> {
+    let base = BaseDirs::new().ok_or(PathsError::DataDirUnavailable)?;
+    let legacy = ProjectDirs::from("org", "Polyfrost", "OneClient")
+        .map(|dirs| dirs.data_local_dir().to_path_buf());
+    Ok(oneclient_dir_from(base.data_dir(), legacy))
+}
+
+fn oneclient_dir_from(base: &Path, legacy: Option<PathBuf>) -> PathBuf {
+    legacy
+        .filter(|dir| dir.join(SETTINGS_FILE).is_file())
+        .unwrap_or_else(|| base.join("Polyfrost").join("OneClient"))
 }
 
 pub fn standard_dir() -> PathsResult<PathBuf> {
@@ -304,6 +319,35 @@ mod tests {
     }
 
     #[test]
+    fn fork_identity_is_distinct_from_upstream() {
+        assert_eq!(QUALIFIER, "com");
+        assert_eq!(ORGANIZATION, "OneForAll");
+        let upstream = ProjectDirs::from(
+            "org",
+            "Polyfrost",
+            if cfg!(debug_assertions) {
+                "OneClient-dev"
+            } else {
+                "OneClient"
+            },
+        )
+        .unwrap();
+        assert_ne!(legacy_dir().unwrap(), upstream.data_local_dir());
+        assert_ne!(
+            standard_dir().unwrap(),
+            BaseDirs::new()
+                .unwrap()
+                .data_dir()
+                .join("Polyfrost")
+                .join(if cfg!(debug_assertions) {
+                    "OneClient-dev"
+                } else {
+                    "OneClient"
+                })
+        );
+    }
+
+    #[test]
     fn the_launcher_sits_one_level_under_the_organization_folder() {
         let organization = organization_dir().expect("a home directory");
         assert_eq!(organization.file_name(), Some(OsStr::new(ORGANIZATION)));
@@ -314,7 +358,7 @@ mod tests {
         assert_eq!(
             tail,
             vec![OsStr::new(APPLICATION), OsStr::new(ORGANIZATION)],
-            "every Polyfrost product shares one folder and takes a single name inside it"
+            "every OneForAll product shares one folder and takes a single name inside it"
         );
     }
 
@@ -336,10 +380,30 @@ mod tests {
         assert_eq!(
             APPLICATION,
             if cfg!(debug_assertions) {
-                "OneClient-dev"
+                "OneForAllLauncher-dev"
             } else {
-                "OneClient"
+                "OneForAllLauncher"
             }
         );
+    }
+
+    #[test]
+    fn explicit_oneclient_choice_uses_release_paths_and_existing_legacy_data() {
+        let temp = std::env::temp_dir().join(format!(
+            "oneclient-paths-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let legacy = temp.join("legacy").join("data");
+        std::fs::create_dir_all(&legacy).unwrap();
+        let standard = temp.join("Polyfrost").join("OneClient");
+        assert_eq!(oneclient_dir_from(&temp, Some(legacy.clone())), standard);
+        std::fs::write(legacy.join(SETTINGS_FILE), b"{}").unwrap();
+        assert_eq!(oneclient_dir_from(&temp, Some(legacy.clone())), legacy);
+        assert_eq!(std::fs::read(legacy.join(SETTINGS_FILE)).unwrap(), b"{}");
+        std::fs::remove_dir_all(temp).unwrap();
     }
 }

@@ -9,6 +9,7 @@ mod summary;
 mod terms;
 #[cfg(test)]
 pub(crate) mod test_support;
+mod updates;
 mod welcome;
 
 pub(crate) use selection::{
@@ -24,6 +25,7 @@ pub(crate) use migration::matching_new_cluster_id;
 pub use preferences::OnboardingPreferences;
 pub use summary::OnboardingSummary;
 pub use terms::OnboardingTerms;
+pub use updates::OnboardingUpdates;
 pub use welcome::OnboardingWelcome;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -40,7 +42,7 @@ use crate::theme::{colors, rounded, text_size};
 use crate::ui::{border_all_color, entrance_motion_layer};
 
 pub fn onboarding_total(has_migration: bool, picks_location: bool) -> usize {
-    7 + usize::from(has_migration) + usize::from(picks_location)
+    8 + usize::from(has_migration) + usize::from(picks_location)
 }
 
 pub fn onboarding_step_index(route: &Route, has_migration: bool, picks_location: bool) -> usize {
@@ -56,7 +58,8 @@ pub fn onboarding_step_index(route: &Route, has_migration: bool, picks_location:
         Route::OnboardingAccount {} => 3 + shift,
         Route::OnboardingBundles {} => 4 + shift,
         Route::OnboardingPreferences {} => 5 + shift,
-        Route::OnboardingSummary {} => 6 + shift,
+        Route::OnboardingUpdates {} => 6 + shift,
+        Route::OnboardingSummary {} => 7 + shift,
         _ => 0,
     }
 }
@@ -176,6 +179,24 @@ pub(crate) fn onboarding_nav_action(
     next_enabled: bool,
     on_next: impl FnMut(()) + 'static,
 ) -> impl IntoElement {
+    navigation(back, next_label, next_enabled, on_next, false)
+}
+
+/// A confirmed default choice can be advanced directly with Enter.
+pub(crate) fn onboarding_default_nav(
+    back: Option<Route>,
+    on_next: impl FnMut(()) + 'static,
+) -> impl IntoElement {
+    navigation(back, t("oneclient.common.next"), true, on_next, true)
+}
+
+fn navigation(
+    back: Option<Route>,
+    next_label: &str,
+    next_enabled: bool,
+    on_next: impl FnMut(()) + 'static,
+    focus_next: bool,
+) -> impl IntoElement {
     let mut on_next = on_next;
 
     rect()
@@ -200,6 +221,7 @@ pub(crate) fn onboarding_nav_action(
                 .primary()
                 .width(Size::px(140.))
                 .enabled(next_enabled)
+                .auto_focus(focus_next)
                 .on_press(move |_| on_next(()))
                 .text(next_label.to_string())
                 .child(Icon::new(IconType::ArrowRight).size(16.)),
@@ -341,6 +363,28 @@ pub(crate) fn step_heading(title: &str, subtitle: &str) -> impl IntoElement {
 mod tests {
     use super::*;
 
+    #[test]
+    fn a_default_choice_can_be_confirmed_with_enter_without_a_click() {
+        use freya_testing::TestingRunner;
+
+        fn app() -> impl IntoElement {
+            let mut confirmations = use_consume::<State<usize>>();
+            onboarding_default_nav(None, move |()| *confirmations.write() += 1)
+        }
+
+        let (mut test, confirmations) = TestingRunner::new(
+            app,
+            Size2D::new(500., 300.),
+            |runner| runner.provide_root_context(|| State::create(0usize)),
+            1.,
+        );
+        // Exercise keyboard focus/events only; do not render or capture pixels.
+        test.sync_and_update();
+        assert_eq!(*confirmations.peek(), 0);
+        test.press_key(Key::Named(NamedKey::Enter));
+        assert_eq!(*confirmations.peek(), 1);
+    }
+
     fn flow(has_migration: bool, picks_location: bool) -> Vec<Route> {
         let mut routes = vec![Route::OnboardingWelcome {}];
 
@@ -359,6 +403,7 @@ mod tests {
             Route::OnboardingAccount {},
             Route::OnboardingBundles {},
             Route::OnboardingPreferences {},
+            Route::OnboardingUpdates {},
             Route::OnboardingSummary {},
         ]);
 

@@ -1,93 +1,317 @@
 <div align="center">
 
-<img src=".github/media/RepoBanner.png" alt="Repository Banner" />
+<img width="160" height="160" align="center" src="docs/fork-icon/oneforall-icon.svg" alt="OneForAll Launcher icon">
 
-# OneClient  |  OneLauncher
-The monorepo containing the code for OneLauncher, OneClient, and their core backend.
+<h1>
+<a style="color:#f5c2e7">OneForAll Launcher</a>
+</h1>
 
-OneClient is a Minecraft client featuring fully 100% open-source components, offering many packaged and pre-configured mods in one click.
+A OneLauncher/OneClient fork that **removes offline account restrictions** and adds Ely.by and custom authentication server support.
+
+This fork is **not** endorsed by Polyfrost/OneLauncher
+
+<div>
+
+[![Latest GitHub release](https://img.shields.io/github/v/release/liwwyy/OneForAllLauncher?label=Release&style=for-the-badge&color=%23f5c2e7&logo=github&logoColor=%23f5c2e7)](https://github.com/liwwyy/OneForAllLauncher/releases/latest)
+[![Stable upstream sync](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fliwwyy%2FOneForAllLauncher%2Fbadges%2Fupstream-sync.json&style=for-the-badge&logo=github&logoColor=%23f5c2e7)](https://github.com/liwwyy/OneForAllLauncher/actions/workflows/upstream_sync.yml)
+<img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-f5c2e7?style=for-the-badge" alt="Supported platforms: macOS, Windows and Linux" />
+[![GitHub Repo stars](https://img.shields.io/github/stars/liwwyy/OneForAllLauncher?label=Stars&style=for-the-badge&color=%23f5c2e7&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIC05NjAgOTYwIDk2MCIgd2lkdGg9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Im0zNTQtMjQ3IDEyNi03NiAxMjYgNzctMzMtMTQ0IDExMS05Ni0xNDYtMTMtNTgtMTM2LTU4IDEzNS0xNDYgMTMgMTExIDk3LTMzIDE0M1pNMjMzLTgwbDY1LTI4MUw4MC01NTBsMjg4LTI1IDExMi0yNjUgMTEyIDI2NSAyODgtMjUtMjE4IDE4OSA2NSAyODEtMjQ3LTE0OUwyMzMtODBabTI0Ny0zNTBaIiBzdHlsZT0iZmlsbDogcmdiKDI0NSwgMTk0LCAyMzEpOyIvPgo8L3N2Zz4%3D)](https://github.com/liwwyy/OneForAllLauncher/stargazers) [![GitHub release downloads](https://img.shields.io/github/downloads/liwwyy/OneForAllLauncher/total?label=Downloads&style=for-the-badge&color=%23f5c2e7&logo=github&logoColor=%23f5c2e7)](https://github.com/liwwyy/OneForAllLauncher/releases)
 
 </div>
 
-## Installing
+</div>
 
-You can install the latest release of OneClient from our website: [https://polyfrost.org/projects/oneclient](https://polyfrost.org/projects/oneclient)
-as well as our [GitHub releases](https://github.com/Polyfrost/OneLauncher/releases/latest).
+> [!NOTE]
+> **Don't trust this fork?** Install the official OneClient modpack through a well known standalone launcher with offline-account and Modrinth support, using the community-recommended route for offline/cracked players. Follow the [OneClient modpack alternative guide](docs/oneclient-modpack-alternative-guide.md).
 
-| Windows (x86_64) | macOS (Intel & Apple Silicon) | Linux (x86_64)                                          |
-|------------------|-------------------------------|---------------------------------------------------------|
-| Installer 🔄      | DMG 🔄                        | AppImage 🔄                                             |
-|                  | App Bundle 🔄                 | DEB                                                     |
-|                  |                               | RPM                                                     |
-|                  |                               | *[RPM (COPR)](https://copr.fedorainfracloud.org/coprs/polyfrost/OneClient/) 🔄 |
-|                  |                               | [AUR](https://aur.archlinux.org/packages/oneclient-bin) |
+## Stable Releases
 
-> 🔄 = Has support for autoupdating built-in
+Download **OneForAllLauncher 2.10.2** from the direct links below. Choose the package matching your operating system and processor. See [GitHub Releases](https://github.com/liwwyy/OneForAllLauncher/releases/latest) for the latest published version.
+
+| Operating system | Architecture | Direct download | Installation |
+| --- | --- | --- | --- |
+| Windows | x64 (Intel / AMD) | 🔄 [`.exe`](https://github.com/liwwyy/OneForAllLauncher/releases/download/oneforall-2.10.2/OneForAllLauncher_2.10.2_windows_x86_64.exe) | Run the installer. |
+| Linux — CachyOS, Arch and other distributions | x64 (Intel / AMD) | 🔄 [`.AppImage`](https://github.com/liwwyy/OneForAllLauncher/releases/download/oneforall-2.10.2/OneForAllLauncher_2.10.2_linux_x86_64.AppImage) | Mark executable, then run. |
+| Linux — Debian, Ubuntu, Linux Mint | x64 (Intel / AMD) | [`.deb`](https://github.com/liwwyy/OneForAllLauncher/releases/download/oneforall-2.10.2/OneForAllLauncher_2.10.2_linux_x86_64.deb) | Install with your package manager. |
+| Linux — Fedora, openSUSE and other RPM distributions | x64 (Intel / AMD) | [`.rpm`](https://github.com/liwwyy/OneForAllLauncher/releases/download/oneforall-2.10.2/OneForAllLauncher_2.10.2_linux_x86_64.rpm) | Install with your package manager. |
+| macOS — Apple Silicon (M-series) | ARM64 | 🔄 [`.dmg`](https://github.com/liwwyy/OneForAllLauncher/releases/download/oneforall-2.10.2/OneForAllLauncher_2.10.2_darwin_aarch64.dmg) | Open the DMG and copy the app to Applications. |
+| macOS — Intel | x64 | 🔄 [`.dmg`](https://github.com/liwwyy/OneForAllLauncher/releases/download/oneforall-2.10.2/OneForAllLauncher_2.10.2_darwin_x86_64.dmg) | Open the DMG and copy the app to Applications. |
+| macOS — Apple Silicon (M-series) | ARM64 | 🔄 [`.app.tar.gz`](https://github.com/liwwyy/OneForAllLauncher/releases/download/oneforall-2.10.2/OneForAllLauncher_2.10.2_darwin_aarch64.app.tar.gz) | Extract and move the app to Applications. |
+| macOS — Intel | x64 | 🔄 [`.app.tar.gz`](https://github.com/liwwyy/OneForAllLauncher/releases/download/oneforall-2.10.2/OneForAllLauncher_2.10.2_darwin_x86_64.app.tar.gz) | Extract and move the app to Applications. |
+
+🔄 Supports in-launcher automatic updates when enabled. For DEB/RPM installations, download and install newer packages manually.
+
+Verify downloads with [SHA256SUMS.txt](https://github.com/liwwyy/OneForAllLauncher/releases/download/oneforall-2.10.2/SHA256SUMS.txt). If Windows SmartScreen or macOS Gatekeeper blocks the launcher, see [installation warnings and troubleshooting](docs/installation-troubleshooting.md).
+
+## Fork Sync Notice
+
+This fork follows **stable OneLauncher/OneClient releases** rather than individual upstream commits or development builds. It will usually be updated within a day of an upstream stable release.
+
+The **Upstream sync** badge checks hourly whether this fork's `main` includes the latest stable OneClient release commit. It shows **Up to date**, **Update available**, or **Check unavailable**. It describes the source branch; the Release badge separately shows the latest published build.
+
+If an update is taking longer, you can contact me via **[Discord](https://discord.com/users/1476376719668674620)** or open a **[GitHub Issue](https://github.com/liwwyy/OneForAllLauncher/issues)**.
+
+### My Discord
+
+<a href="https://discord.com/users/1476376719668674620"><img alt="My Discord" src="https://dcbadge.limes.pink/api/shield/1476376719668674620?style=flat"></a>
+
+## Screenshots
 
 <details>
+  <summary>Browse the screenshot gallery</summary>
 
-<summary><h3>COPR Installation</h3></summary>
-
-On supported distributions (RHEL, Fedora, etc.), you can make use of the Fedora COPR instead of using the AppImage or manually installing the RPM file.
-1. First you have to enable the repository:
-```
-sudo dnf copr enable polyfrost/OneClient
-```
-2. Then you can install the package:
-```
-sudo dnf install oneclient-bin
-```
+  <table>
+    <tr>
+      <td align="center">
+        <a href="docs/screenshots/onboarding-account-page.png"><img src="docs/screenshots/onboarding-account-page.png" alt="Onboarding account page" width="420" /></a><br />
+        <sub>Account setup</sub>
+      </td>
+      <td align="center">
+        <a href="docs/screenshots/account-manager.png"><img src="docs/screenshots/account-manager.png" alt="Account manager" width="420" /></a><br />
+        <sub>Account manager</sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <a href="docs/screenshots/offline-account-add-popup.png"><img src="docs/screenshots/offline-account-add-popup.png" alt="Offline account add popup" width="420" /></a><br />
+        <sub>Offline accounts</sub>
+      </td>
+      <td align="center">
+        <a href="docs/screenshots/ely-by-account-add-popup.png"><img src="docs/screenshots/ely-by-account-add-popup.png" alt="Ely.by account add popup" width="420" /></a><br />
+        <sub>Ely.by sign-in</sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" colspan="2">
+        <a href="docs/screenshots/offline-launch.png"><img src="docs/screenshots/offline-launch.png" alt="Offline launch controls" width="840" /></a><br />
+        <sub>Offline launch</sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" colspan="2">
+        <a href="docs/screenshots/offline-local-skin-picker.png"><img src="docs/screenshots/offline-local-skin-picker.png" alt="Local skin picker for offline accounts" width="840" /></a><br />
+        <sub>Offline account local skin picker</sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" colspan="2">
+        <a href="docs/screenshots/elyby-skin-ingame.png"><img src="docs/screenshots/elyby-skin-ingame.png" alt="Ely.by skin in game" width="840" /></a><br />
+        <sub>Ely.by skin in game</sub>
+      </td>
+    </tr>
+  </table>
 
 </details>
 
-## Contributing
+## AI Usage disclosure
 
-We welcome contributions! Please read our [contributing guidelines](CONTRIBUTING.md) before getting started.
+> [!WARNING]
+> This is a fork modified with **AI**, and maintained independently
 
+## Features
 
-### Requirements
+See [code review and release verification](docs/security-verification.md) for the
+recommended free checks, what they establish, and their current status.
 
-The project targets **Rust 1.97** or later. You can install Rust via [rustup](https://rustup.rs/).
+- Add offline accounts without first signing in with a Microsoft account, with live username validation, an invalid-name override, random characters/username generators, and an optional online-name check (off by default).
+- Sign in with Microsoft, [Ely.by](https://ely.by/), or a custom Yggdrasil authentication server. Ely.by skin visibility to other players depends on server support.
+- Launch installed instances without waiting for authentication, cloud sync or update requests when offline. Use **Launch Offline** from a launch button's context menu, or enable **Always launch Offline** in an instance's settings. Missing game files still require one online installation.
+- Keep the same username on different account types without changing Minecraft profile UUIDs.
+- Set a local PNG skin in the offline account wardrobe, with no registration or upload. Local skins use shared authlib and legacy skin paths across Minecraft versions and loaders; versions before 1.8 use the classic model. Mods that replace skin loading may take precedence.
+- Display offline local skins and Ely.by skins in game, including PolyPlus skin head previews. The maintainer confirmed both skin methods and head previews work in game; local-skin head support is included in **2.10.1**.
+- Toggle the VanillaHUD preview compatibility workaround in Launcher settings independently of authlib-injector.
+- Choose automatic, signature-verified updates from this fork’s GitHub releases, or check for updates manually in Launcher settings.
+- Install alongside upstream OneClient using separate accounts, settings and game data.
+- Based on upstream OneLauncher, with the fork-specific changes described here.
+- Free and open-source under GPL-3.0-only.
 
+### Offline account limitations
 
-### Building & Running
+Offline accounts can be used for singleplayer and servers configured to accept offline players. Servers requiring Microsoft/Mojang authentication still need an account with Minecraft access. Initial game, loader and mod downloads require an internet connection.
+
+> [!IMPORTANT]
+> **PolyPlus world hosting, social and cosmetic features do not work with offline accounts.** The launcher's current PolyPlus integration requires an authenticated Microsoft Minecraft account; Ely.by and custom accounts also do not enable these services.
+
+> [!NOTE]
+> **PolyPlus may show an Ely.by account as “Microsoft” in its in-game account switcher.** This is a provider-label quirk; the account still uses Ely.by authentication and skins. The label does not grant access to Microsoft or PolyPlus authenticated services.
+
+## Installation
+
+> [!WARNING]
+> Windows installers do not have trusted code signing, and macOS builds are not Developer ID signed/notarized. **Windows SmartScreen or macOS Gatekeeper may block the launcher.** Some macOS versions and hardware combinations may also be incompatible. See [installation warnings and troubleshooting](docs/installation-troubleshooting.md) for per-app opening steps, compatibility checks and Windows screenshots.
+
+### OneClient setup for offline accounts
+
+Follow the [community setup guide for offline accounts](docs/oneclient-modpack-alternative-guide.md):
+use a standalone launcher with offline-account and Modrinth modpack support,
+such as Freesm, and install the official OneClient modpack through it.
+
+### Choosing the game data folder
+
+Fresh setup selects **OneClient folder** by default. This follows stock
+OneLauncher's configured game folder, including a custom location on another
+drive or an older directory layout. **OneForAllLauncher folder** uses the fork's
+own library, and **Another drive** lets you choose a custom location. Existing
+libraries are recognized without adding a nested OneClient folder. If stock
+OneLauncher's configured drive is disconnected, reconnect it before selecting
+that library; the launcher will not silently substitute an empty folder.
+
+**Upgrading users keep their existing OneForAllLauncher/custom game folder.**
+The new default applies only to fresh setup. Accounts, launcher settings, themes,
+update preferences and logs stay in the existing private fork folder.
+
+Change libraries in **Settings → Launcher → Folders and files → Game library →
+Use folder…**. Choose OneClient, OneForAllLauncher or another folder, then confirm
+**Use folder and quit** and reopen the launcher. This selects that library without
+copying, merging or deleting either library. **Move files…** separately copies
+the current game files to an empty location. Reused/shared source libraries are
+preserved and are never offered as disposable move leftovers.
+
+Sharing reuses instances, Minecraft, assets, libraries, caches, managed Java and
+the catalog database. Managed Java lives in `<game folder>/metadata/java`;
+explicitly selected external Java paths remain unchanged. Use matching
+stable launcher versions and **one launcher at a time** with a shared library;
+changes to instances and game files affect both. Nothing automatically switches
+existing fork installations to upstream data. If a previous development build
+selected the upstream configuration folder instead of its custom game folder,
+select **OneClient folder** again in Settings to use its actual library.
+
+### Launcher updates
+
+Version numbers follow upstream OneLauncher. Version **2.10.2** includes upstream 2.10.2 plus the fork’s account features. GitHub release tags retain the `oneforall-` prefix.
+
+Pushes to `main` automatically build and publish the workspace version when its release/tag does not already exist. Existing versions are skipped; the release workflow can also be started manually. Check [release build results](https://github.com/liwwyy/OneForAllLauncher/actions/workflows/oneclient_release.yml) for package availability and failures.
+
+Setup shows **automatic updates selected by default**. Press **Enter** or **Next** to confirm it, or select **Update manually** to opt out. Viewing the page alone does not enable updates, and existing installations retain their saved preference. Change this later in **Settings → Launcher → Updates**. Opting out disables background update checks. The **Check for updates** button works with either setting and asks before installing an available update.
+
+Updates come from this fork’s stable GitHub releases, and package signatures are verified before installation. Restart the launcher to apply an installed update. Windows installers, macOS app bundles and Linux AppImages support self-updates; DEB/RPM installations and development builds show a download notice instead.
+
+Upgrades use the existing fork data directory, including a previously selected custom data location, so accounts, settings and installed instances remain available. The fork keeps separate installation and launch identities from upstream OneClient so both can be installed and run on the same machine.
+
+> [!IMPORTANT]
+> **Upgrading from 2.6.9 or earlier?** Install 2.6.10 or newer manually once from [GitHub Releases](https://github.com/liwwyy/OneForAllLauncher/releases/latest). Those older versions have their updater disabled and cannot automatically install this first updater-enabled release.
+
+## Community & Support
+
+Report fork-specific bugs and suggestions in [GitHub Issues](https://github.com/liwwyy/OneForAllLauncher/issues).
+
+### Contributing
+
+This fork only adds or modifies features directly associated with **standalone offline accounts, Ely.by, and custom authentication server support**. Contributions must stay within that scope and keep modifications to OneLauncher minimal so the fork remains easy to maintain and update.
+
+Code, documentation and translation contributions supporting those account features are welcome. Reuse upstream implementations and UI patterns, keep changes focused, and preserve compatibility with existing fork installations. Propose unrelated features and improvements to upstream OneLauncher. See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution rules.
+
+## Building from Source
+
+OneForAllLauncher is a Rust workspace using Freya/Skia. Install **Rust 1.97 or newer** with [rustup](https://rustup.rs/), plus Git, **Python 3 and a JDK 17+ with `javac`**, and the native build dependencies for your platform. Cargo compiles both Java agents from source automatically; a Java runtime alone is not sufficient for building the launcher.
+
+### Prerequisites
+
+- **Windows:** use the MSVC Rust toolchain and install Visual Studio Build Tools with **Desktop development with C++** and a Windows SDK, plus CMake, Python 3 and a JDK 17+ (set `JAVA_HOME` or put `javac` on PATH).
+- **macOS:** install Xcode command-line tools with `xcode-select --install`. Install CMake, pkg-config, Python 3 and a JDK 17+; with Homebrew, use `brew install cmake pkg-config python openjdk@17` and set `JAVA_HOME` to the installed JDK.
+- **Linux:** install a C/C++ toolchain, CMake, Clang, pkg-config, Python 3, and the font, windowing, graphics, GTK and D-Bus development libraries below.
+
+On **Ubuntu 22.04**, these match the release workflow's build dependencies:
 
 ```sh
-# Run the app
-cargo run -p oneclient_app
-
-# Build a release binary
-cargo build -p oneclient_app --release
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends \
+  build-essential cmake pkg-config clang python3 openjdk-17-jdk \
+  libfontconfig-dev libfreetype-dev \
+  libgl1-mesa-dev libx11-dev libxcursor-dev libxi-dev libxrandr-dev \
+  libxkbcommon-dev libxkbcommon-x11-dev libwayland-dev libdbus-1-dev \
+  libgtk-3-dev libayatana-appindicator3-dev
 ```
 
+Other Linux distributions use different package names. AppImage packaging/running may also need FUSE support; the Ubuntu 22.04 release runner installs `libfuse2`.
 
-### Packaging / Releasing
-
-Installers are produced with [**cargo-packager**](https://github.com/crabnebula-dev/cargo-packager)
-(the standalone bundler spun out of the Tauri bundler). Config lives in
-[`packages/oneclient_app/Cargo.toml`](./packages/oneclient_app/Cargo.toml) under
-`[package.metadata.packager]`.
+### Build and run
 
 ```sh
-cargo install cargo-packager --locked
+git clone https://github.com/liwwyy/OneForAllLauncher.git
+cd OneForAllLauncher
+rustup toolchain install stable --profile minimal
+rustc +stable --version
 
-# Build the binary, then bundle it for the current OS:
-cargo build --release -p oneclient_app
-cargo packager --release -p oneclient_app --formats <targets>
-#   Windows: nsis      macOS: app,dmg      Linux: deb,appimage
+cargo +stable build --locked -p oneclient_app --bin oneforall_app -j 2
+cargo +stable run --locked -p oneclient_app --bin oneforall_app
 ```
 
+Check that the Rust version is at least 1.97. Run Cargo commands from the repository root. The executable is `target/debug/oneforall_app` on Linux/macOS, or `target/debug/oneforall_app.exe` on Windows. Internal workspace package names still use the `oneclient_` prefix.
 
-### Versioning
+Debug builds use the separate **OneForAllLauncher-dev** data directory. Release builds use **OneForAllLauncher**, so their accounts and settings are separate. Neither uses upstream OneClient's data directory.
 
-The workspace shares a single version, defined in the root [`Cargo.toml`](./Cargo.toml) under `[workspace.package]`.
+For an optimized executable:
 
-Versions and release notes come from [Knope](https://knope.tech) change files in [`.changeset/`](./.changeset).
-Add one per user-facing change with `knope document-change` (installed via `cargo install knope`). The
-`OneClient Release Build` workflow consumes them, bumps the version, writes [`CHANGELOG.md`](./CHANGELOG.md),
-and uses the new entry as the GitHub release body, which is what the launcher's changelog page shows.
+```sh
+cargo +stable build --locked --release -p oneclient_app --bin oneforall_app -j 2
+```
 
+The executable is placed under `target/release/`. Builds can take several minutes and substantial RAM/disk space; use `-j 1` for fewer concurrent compiler jobs. The default release profile uses fat LTO; CI uses thin LTO and 16 codegen units to reduce memory use.
 
-## Code signing
+### Checks
 
-This program uses free code signing provided by [SignPath.io](https://signpath.io?utm_source=foundation&utm_medium=github&utm_campaign=0install), and a certificate by the [SignPath Foundation](https://signpath.org?utm_source=foundation&utm_medium=github&utm_campaign=0install). We thank them very much to their contributions to OSS software!
+```sh
+cargo +stable test --locked -p oneclient_auth -j 2
+cargo +stable test --locked -p oneclient_core -p oneclient_events -p oneclient_app --lib -j 2 -- --skip components::markdown::image::tests --skip components::lobby::panel::tests
+```
+
+Rendering tests are excluded above because the owner tests the UI manually. See [current validation and remaining release checks](docs/validation.md).
+
+### Optional packaging
+
+After building the release executable, Linux users can create DEB and AppImage packages:
+
+```sh
+cargo +stable install cargo-packager --version 0.11.8 --locked
+NO_STRIP=1 cargo +stable packager --release --packages oneclient_app --formats deb,appimage
+```
+
+Output is under `target/release/`. `NO_STRIP=1` avoids linuxdeploy's older strip tool failing on modern system libraries; Cargo already strips the release executable.
+
+See [the release workflow](.github/workflows/oneclient_release.yml) for Windows NSIS runtime bundling, macOS app/DMG packages, and Linux RPM packaging. Both local Cargo builds and release/nightly CI compile the [preview compatibility agent](distribution/elyby-preview-compat/README.md) and [offline skin hook](distribution/offline-skin/README.md) from source.
+
+Publishing updater-enabled releases requires the repository secrets `CARGO_PACKAGER_SIGN_PRIVATE_KEY` and `CARGO_PACKAGER_SIGN_PRIVATE_KEY_PASSWORD`. The workflow signs final update packages and attaches their `.sig` files plus `latest.json` to the release. Only the public verification key at `packages/oneclient_app/assets/updater.pub` belongs in Git; keep an encrypted backup of the private signing key and its password, and preserve this signing identity so installed launchers can verify future releases. These secrets are not needed for building the launcher locally.
+
+### Bundled Java compatibility agent
+
+The previously checked-in `packages/oneclient_core/assets/elyby-preview-compat.jar` has been removed. **Cargo compiles the agent from the tracked Java source and embeds the generated JAR from its build output directory.** It is only enabled for Ely.by/custom-account launches of Minecraft 1.8.9 to fix a missing-name crash in VanillaHUD's OneConfig tab preview. It is separate from authlib-injector, which the launcher downloads and verifies for Ely.by/custom authentication. The preview agent does not receive account credentials; its preview lookups may contact Mojang's public profile API.
+
+The Java source, pinned ASM dependency checksum, licenses, deterministic build script and console regression tests are in [distribution/elyby-preview-compat](distribution/elyby-preview-compat/README.md). Cargo handles normal builds. To generate a standalone test JAR at `target/elyby-preview-compat/elyby-preview-compat.jar`, run:
+
+```sh
+python3 distribution/elyby-preview-compat/build.py
+```
+
+The first agent build downloads the checksum-verified ASM dependency; later builds reuse `target/elyby-preview-compat/asm-9.10.1.jar`. For an offline build, cache that dependency first or point `ONEFORALL_ASM_JAR` to the exact pinned JAR. `PYTHON`, `JAVA_HOME` and `JAVAC` can select your build tools. End users running packaged releases need no Python or Java compiler for this agent.
+
+VanillaHUD [fixed missing preview names in its 3.5.8 source](https://github.com/Polyfrost/VanillaHUD/commit/f1c8c189b23c1e674df9319570bf7109d480828e). Before changing the workaround's default or removing it, the exact distributed Minecraft 1.8.9 mod must be verified and tested in game with the agent disabled. Authlib-injector is separate and remains necessary for Ely.by/custom authentication.
+
+### Maintenance
+
+[AGENTS.md](AGENTS.md) records the fork's scope, coding conventions, upgrade requirements and validation workflow. Keep fork changes focused and reviewable against the upstream release they extend. UI changes are tested manually by the maintainer.
+
+Start with the [maintainer handoff](docs/maintainer-handoff.md) for implementation status, confirmed owner tests and the remaining publication steps. The [implementation plan](docs/implementation-plan.md) and [validation record](docs/validation.md) retain the design decisions and test evidence.
+
+## Privacy & Network Requests
+
+The launcher contacts third-party services for sign-in, game metadata, downloads, skins and enabled online features. These include Microsoft/Mojang, Ely.by when you use an Ely.by account, your chosen authentication server for custom accounts, Polyfrost services, and mod/content providers. Those services receive the requests needed to provide their features; an offline account does not make all launcher activity offline.
+
+- **Launcher updates:** optional and off until you opt in during setup or in **Settings → Launcher → Updates**. When enabled, startup checks request this fork’s `latest.json` from GitHub Releases and download newer signed packages when available. GitHub receives your public IP and normal HTTP request information. **Check for updates** sends a check even when automatic updates are off, and asks before installing.
+- **Crash reporting:** controlled by **Settings → Launcher → Crash Reporting** and applies after restarting. Reports require reporting to be enabled and the build to have a configured Sentry endpoint. Declining the terms/privacy consent disables reporting. Fork builds have no Sentry endpoint by default; it must be supplied at build time through `ONEFORALL_SENTRY_DSN`.
+- **Discord Rich Presence:** enabled by default and controlled by **Settings → Launcher → Discord RPC**. When enabled, it shares launcher/game activity with your running Discord client.
+- **Online username check:** **Check for online usernames with the same name** in the offline-account popup is unchecked by default in both onboarding and account settings. When enabled, valid usernames are sent over HTTPS to Mojang's public profile lookup at `api.mojang.com/users/profiles/minecraft/<username>` after a short pause in typing. Mojang receives the queried name and your public IP address; no passwords or account tokens are sent. Clearing the checkbox or closing the popup cancels pending checks. Matches and lookup failures are informational: you can still create the offline account, and its offline UUID stays unchanged. With the checkbox off, this feature sends no lookup requests.
+- **Preview compatibility agent:** for Ely.by/custom-account launches of Minecraft 1.8.9, the bundled VanillaHUD workaround may query Mojang's public profile service for missing preview names and textures. These requests send public profile UUIDs, not account credentials.
+- **PolyPlus:** when used with a supported Microsoft account, its online services connect to Polyfrost's backend. They are unavailable with offline accounts.
+
+You can inspect the source and these settings before running the launcher. See [Polyfrost's privacy policy](https://polyfrost.org/legal/privacy) for its services; Microsoft, Ely.by and other providers have their own policies.
+
+## About this fork
+
+OneForAll Launcher is independently maintained and is **not endorsed by Polyfrost or the OneLauncher team**. Contributions and bug reports are welcome through this repository's issues and pull requests.
+
+## License
+
+**OneForAllLauncher, a fork of OneClient by Polyfrost.** This project is licensed under the **GNU General Public License, version 3 only (GPL-3.0-only)**. See [LICENSE](LICENSE) for the license terms and [ATTRIBUTION.md](ATTRIBUTION.md) for original credits and third-party notices.
+
+[![License](https://img.shields.io/github/license/liwwyy/OneForAllLauncher?style=for-the-badge)](https://github.com/liwwyy/OneForAllLauncher/blob/main/LICENSE)
